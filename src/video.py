@@ -123,7 +123,8 @@ def video_upload():
         # update_room_number(file_name)
         return jsonify({
             'message': 'Video converted successfully',
-            'convert_url': convert_url
+            'convert_url': convert_url,
+            'upload_url': upload_url,
         })
     except Exception as e:
         return jsonify({
