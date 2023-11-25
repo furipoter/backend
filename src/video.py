@@ -24,5 +24,9 @@ def upload_file():
         video = request.files['video']
         file_name = request.form['file_name']
         s3.upload_fileobj(video, 'furiosa-video', f'upload/{file_name}')
-        return jsonify({'message': 'Video uploaded successfully'})
+        upload_url = f'https://furiosa-video.s3.ap-northeast-2.amazonaws.com/upload/{file_name}'
+        return jsonify({
+            'message': 'Video uploaded successfully',
+            'upload_url': upload_url
+        })
     return jsonify({'message': 'No video uploaded'})
