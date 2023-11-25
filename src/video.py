@@ -104,7 +104,7 @@ def video_upload():
 
                     image_tensor, preproc_params = preproc(frame)
                     output = runner.run(image_tensor)
-                    predictions = postproc(output, 0.65, 0.35)
+                    predictions = postproc(output, 0.45, 0.35)
                     predictions = predictions[0]
                     bboxed_img = draw_bbox(frame, predictions, preproc_params)
                     finish_Time = time.time() - start_time
