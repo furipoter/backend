@@ -1,10 +1,10 @@
-from time import sleep
+import subprocess
+import uuid
 
 import cv2
 from flask import Blueprint, request, jsonify
 
 from app import s3
-from src.db import db
 from src.db.room import Room
 
 router = Blueprint('video', __name__, url_prefix='/video')
@@ -28,37 +28,39 @@ def count_convert_file_name(filename):
         }), 500
 
 
-def update_room_number(filename):
-    try:
-        room_id = '-'.join(filename.split('-')[:-1])
-        # s3 에서 upload, convert 에서 개수 센 다음 작은걸로 업데이트
-        upload_count = len(s3.list_objects_v2(Bucket='furiosa-video', Prefix=f'upload/{room_id}')['Contents'])
-        convert_count = len(s3.list_objects_v2(Bucket='furiosa-video', Prefix=f'convert/{room_id}')['Contents'])
-        mini_number = min(upload_count, convert_count)
-
-        room = Room.query.filter_by(id=filename).first()
-        if room is None:
-            if mini_number == 1:
-                return jsonify({
-                    'message': 'No video uploaded'
-                }), 404
-            else:
-                room = Room(id=room_id, number=mini_number)
-                db.session.add(room)
-                db.session.commit()
-                return jsonify({
-                    'message': 'Room number updated successfully'
-                })
-        else:
-            room.number = mini_number
-            db.session.commit()
-            return jsonify({
-                'message': 'Room number updated successfully'
-            })
-    except Exception as e:
-        return jsonify({
-            'message': str(e)
-        }), 500
+# def update_room_number(filename):
+#     try:
+#         room_id = ".".join(filename.split('.')[:-1])
+#         room_id = '-'.join(room_id.split('-')[:-1])
+#         print("room_id", room_id)
+#         # s3 에서 upload, convert 에서 개수 센 다음 작은걸로 업데이트
+#         upload_count = len(s3.list_objects_v2(Bucket='furiosa-video', Prefix=f'upload/{room_id}')['Contents'])
+#         convert_count = len(s3.list_objects_v2(Bucket='furiosa-video', Prefix=f'convert/{room_id}')['Contents'])
+#         mini_number = min(upload_count, convert_count)
+#
+#         room = Room.query.filter_by(id=filename).first()
+#         if room is None:
+#             if mini_number == 1:
+#                 return jsonify({
+#                     'message': 'No video uploaded'
+#                 }), 404
+#             else:
+#                 room = Room(id=room_id, number=mini_number)
+#                 db.session.add(room)
+#                 db.session.commit()
+#                 return jsonify({
+#                     'message': 'Room number updated successfully'
+#                 })
+#         else:
+#             room.number = mini_number
+#             db.session.commit()
+#             return jsonify({
+#                 'message': 'Room number updated successfully'
+#             })
+#     except Exception as e:
+#         return jsonify({
+#             'message': str(e)
+#         }), 500
 
 
 @router.route('/upload', methods=['POST'])
@@ -67,9 +69,28 @@ def video_upload():
         if 'video' in request.files:
             video = request.files['video']
             file_name = request.form['file_name']
-            s3.upload_fileobj(video, 'furiosa-video', f'upload/{file_name}')
+            download_url = f'tmp/up-download-{file_name}'
+            video.save(download_url)
+
+            convert_url = f'tmp/up-{uuid.uuid4()}.mp4'
+
+            # ffmpeg 을 이용해서 webm 을 mp4 로 변환
+            subprocess.call([
+                'ffmpeg',
+                '-i', download_url,  # 입력 파일
+                '-c:v', 'libx264',  # 비디오 코덱
+                '-crf', '23',  # 비디오 품질
+                '-c:a', 'aac',  # 오디오 코덱
+                '-b:a', '128k',  # 오디오 비트레이트
+                '-ac', '2',  # 오디오 채널
+                '-ar', '44100',  # 오디오 샘플레이트
+                '-f', 'mp4',  # 출력 포맷
+                convert_url
+            ])
+
+            s3.upload_fileobj(open(convert_url, 'rb'), 'furiosa-video', f'upload/{file_name}')
             upload_url = f'https://furiosa-video.s3.ap-northeast-2.amazonaws.com/upload/{file_name}'
-            update_room_number(file_name)
+            # update_room_number(file_name)
             return jsonify({
                 'message': 'Video uploaded successfully',
                 'upload_url': upload_url
@@ -111,7 +132,7 @@ def video_convert(file_name):
         s3.upload_fileobj(open(video_no_audio_url, 'rb'), 'furiosa-video', f'convert/{file_name}')
         convert_url = f'https://furiosa-video.s3.ap-northeast-2.amazonaws.com/convert/{file_name}'
 
-        update_room_number(file_name)
+        # update_room_number(file_name)
         return jsonify({
             'message': 'Video converted successfully',
             'convert_url': convert_url
