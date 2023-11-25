@@ -10,6 +10,8 @@ from src.db.room import Room
 from furiosa.runtime.sync import create_runner
 from utils.preprocess import *
 from utils.postprocess import *
+import time
+
 
 router = Blueprint('video', __name__, url_prefix='/video')
 
@@ -77,20 +79,13 @@ def video_upload():
             s3.upload_fileobj(video, 'furiosa-video', f'upload/{file_name}')
             upload_url = f'https://furiosa-video.s3.ap-northeast-2.amazonaws.com/upload/{file_name}'
             # update_room_number(file_name)
-            return jsonify({
-                'message': 'Video uploaded successfully',
-                'upload_url': upload_url
-            })
-        return jsonify({'message': 'No video uploaded'})
-    except Exception as e:
-        return jsonify({
-            'message': str(e)
-        }), 500
-
-
-@router.route('/convert/<file_name>', methods=['GET'])
-def video_convert(file_name):
-    try:
+            # return jsonify({
+            #     'message': 'Video uploaded successfully',
+            #     'upload_url': upload_url
+            # })
+        else:
+            return jsonify({'message': 'No video uploaded'})
+        start_time = time.time()
         download_url = f'tmp/{file_name}'
         s3.download_file('furiosa-video', f'upload/{file_name}', download_url)
         video = cv2.VideoCapture(download_url)
@@ -112,6 +107,7 @@ def video_convert(file_name):
                     predictions = postproc(output, 0.65, 0.35)
                     predictions = predictions[0]
                     bboxed_img = draw_bbox(frame, predictions, preproc_params)
+                    finish_Time = time.time() - start_time
                     cnt += 1
                     # frame = 255 - frame
                     out.write(bboxed_img)
@@ -119,7 +115,7 @@ def video_convert(file_name):
                     break
             video.release()
             out.release()
-
+            print(time.time() - start_time)
         # s3에 convert 한 비디오 업로드
         s3.upload_fileobj(open(video_no_audio_url, 'rb'), 'furiosa-video', f'convert/{file_name}')
         convert_url = f'https://furiosa-video.s3.ap-northeast-2.amazonaws.com/convert/{file_name}'
