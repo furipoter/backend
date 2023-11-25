@@ -1,3 +1,5 @@
+from time import sleep
+
 import cv2
 from flask import Blueprint, request, jsonify
 
@@ -86,22 +88,24 @@ def video_convert(file_name):
         s3.download_file('furiosa-video', f'upload/{file_name}', download_url)
         video = cv2.VideoCapture(download_url)
         # 비디오 저장
-        fourcc = cv2.VideoWriter_fourcc(*'avc1')
+        fourcc = cv2.VideoWriter_fourcc(*'XVID')
         (width, height) = (int(video.get(cv2.CAP_PROP_FRAME_WIDTH)), int(video.get(cv2.CAP_PROP_FRAME_HEIGHT)))
         fps = video.get(cv2.CAP_PROP_FPS)
         video_no_audio_url = f'tmp/convert-{file_name}'
         out = cv2.VideoWriter(video_no_audio_url, fourcc, fps, (width, height))
+        cnt = 0
         while True:
             ret, frame = video.read()
             if ret:
                 # 무언가 frame 전처리 여기서.
                 # 일단 임시로 반전 효과 넣음.
+                cnt += 1
                 frame = 255 - frame
                 out.write(frame)
             else:
                 break
-        out.release()
         video.release()
+        out.release()
 
         # s3에 convert 한 비디오 업로드
         s3.upload_fileobj(open(video_no_audio_url, 'rb'), 'furiosa-video', f'convert/{file_name}')
