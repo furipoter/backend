@@ -89,16 +89,6 @@ files = [
 ]
 
 [[package]]
-name = "ffmpeg"
-version = "1.4"
-description = "ffmpeg python package url [https://github.com/jiashaokun/ffmpeg]"
-optional = false
-python-versions = "*"
-files = [
-    {file = "ffmpeg-1.4.tar.gz", hash = "sha256:6931692c890ff21d39938433c2189747815dca0c60ddc7f9bb97f199dba0b5b9"},
-]
-
-[[package]]
 name = "flask"
 version = "3.0.0"
 description = "A simple framework for building complex web applications."
@@ -396,4 +386,4 @@ watchdog = ["watchdog (>=2.3)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "741244558988aaad051b378311de74bc76fc6edc2fec7c7ea32390ef5822d043"
+content-hash = "510efaf073b77dcd9945e2991b4347498001f8b7d62a9d3d8ceb2ebbfcf7bdb2"

@@ -8,7 +8,6 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.11"
 flask = {extras = ["async"], version = "^3.0.0"}
-ffmpeg = "^1.4"
 boto3 = "^1.29.6"
 flask-cors = "^4.0.0"
 numpy = "^1.26.2"

@@ -2,13 +2,20 @@ import uuid
 
 import cv2
 from flask import Blueprint, request, jsonify
-import ffmpeg
 import subprocess
 
 from app import s3
 
 router = Blueprint('video', __name__, url_prefix='/video')
 
+
+@router.route('/count/convert/<prefix>')
+def count_convert_file_name(prefix):
+    s3_files = s3.list_objects_v2(Bucket='furiosa-video', Prefix=f'convert/{prefix}')
+    count = len(s3_files['Contents'])
+    return jsonify({
+        'count': count
+    })
 
 @router.route('/upload', methods=['POST'])
 def video_upload():
