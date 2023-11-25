@@ -6,8 +6,8 @@ from flask import Flask, jsonify
 
 app = Flask(__name__)
 
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysqldbmasteruser:cnoEmmbwVyVqtclAa=oXZaJ|Be)97IPb//@ls-3c782e648da44e5f1c1a7fdd417c12f22f5ac9df.c7tr5x3jfbuc.ap-northeast-2.rds.amazonaws.com:3306/furiosa-database'
-# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://dbmasteruser:cnoEmmbwVyVqtclAa=oXZaJ|Be)97IPb@ls-3c782e648da44e5f1c1a7fdd417c12f22f5ac9df.c7tr5x3jfbuc.ap-northeast-2.rds.amazonaws.com:3306/furiosa-database'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 app.secret_key = 'secret key'
 CORS(app)
@@ -25,8 +25,8 @@ def home():
 
 if __name__ == '__main__':
     from src import api
-    # from src.db import db
+    from src.db import db
 
     app.register_blueprint(api)
-    # db.init_app(app)
+    db.init_app(app)
     app.run(host='0.0.0.0', port=5001, debug=True)
