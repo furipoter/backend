@@ -357,16 +357,6 @@ socks = ["pysocks (>=1.5.6,!=1.5.7,<2.0)"]
 zstd = ["zstandard (>=0.18.0)"]
 
 [[package]]
-name = "uuid"
-version = "1.30"
-description = "UUID object and generation functions (Python 2.3 or higher)"
-optional = false
-python-versions = "*"
-files = [
-    {file = "uuid-1.30.tar.gz", hash = "sha256:1f87cc004ac5120466f36c5beae48b4c48cc411968eed0eaecd3da82aa96193f"},
-]
-
-[[package]]
 name = "werkzeug"
 version = "3.0.1"
 description = "The comprehensive WSGI web application library."
@@ -386,4 +376,4 @@ watchdog = ["watchdog (>=2.3)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "510efaf073b77dcd9945e2991b4347498001f8b7d62a9d3d8ceb2ebbfcf7bdb2"
+content-hash = "94b7692781c4fb118f9fe0f29017771b71d3e5a5e3f061d2a732f26cf6a1f9ad"
