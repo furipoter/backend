@@ -69,26 +69,8 @@ def video_upload():
         if 'video' in request.files:
             video = request.files['video']
             file_name = request.form['file_name']
-            download_url = f'tmp/up-download-{file_name}'
-            video.save(download_url)
 
-            convert_url = f'tmp/up-{uuid.uuid4()}.mp4'
-
-            # ffmpeg 을 이용해서 webm 을 mp4 로 변환
-            subprocess.call([
-                'ffmpeg',
-                '-i', download_url,  # 입력 파일
-                '-c:v', 'libx264',  # 비디오 코덱
-                '-crf', '23',  # 비디오 품질
-                '-c:a', 'aac',  # 오디오 코덱
-                '-b:a', '128k',  # 오디오 비트레이트
-                '-ac', '2',  # 오디오 채널
-                '-ar', '44100',  # 오디오 샘플레이트
-                '-f', 'mp4',  # 출력 포맷
-                convert_url
-            ])
-
-            s3.upload_fileobj(open(convert_url, 'rb'), 'furiosa-video', f'upload/{file_name}')
+            s3.upload_fileobj(video, 'furiosa-video', f'upload/{file_name}')
             upload_url = f'https://furiosa-video.s3.ap-northeast-2.amazonaws.com/upload/{file_name}'
             # update_room_number(file_name)
             return jsonify({
