@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "furiosa-video"
+version = "0.1.0"
+description = ""
+authors = ["Shin Hyun <kyaryunha@naver.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+flask = "^3.0.0"
+opencv-python = "^4.8.1.78"
+ffmpeg = "^1.4"
+boto3 = "^1.29.6"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
